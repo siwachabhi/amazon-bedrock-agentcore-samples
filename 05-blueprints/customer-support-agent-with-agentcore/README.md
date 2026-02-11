@@ -4,7 +4,7 @@ A production-ready AI customer support agent built on **Amazon Bedrock AgentCore
 
 ## Architecture
 
-![AgentCore Architecture](images/architecture.png)
+![AgentCore Architecture](images/architecture.jpeg)
 
 | Component | Purpose |
 |-----------|---------|

@@ -7,15 +7,16 @@ CUSTOMERS = {
         "customer_id": "CUST-001",
         "name": "John Doe",
         "email": "john@example.com",
-        "member_since": "2023-06-01"
+        "member_since": "2023-06-01",
     },
     "CUST-002": {
         "customer_id": "CUST-002",
         "name": "Jane Smith",
         "email": "jane@example.com",
-        "member_since": "2024-01-15"
-    }
+        "member_since": "2024-01-15",
+    },
 }
+
 
 def lambda_handler(event, context):
     """
@@ -52,20 +53,26 @@ def get_customer(event: Dict[str, Any]):
     customer_id = event.get("customer_id")
 
     if not customer_id:
-        return _response(400, {
-            "success": False,
-            "error": "customer_id is required",
-            "error_code": "MISSING_PARAMETER"
-        })
+        return _response(
+            400,
+            {
+                "success": False,
+                "error": "customer_id is required",
+                "error_code": "MISSING_PARAMETER",
+            },
+        )
 
     customer = CUSTOMERS.get(customer_id)
 
     if not customer:
-        return _response(404, {
-            "success": False,
-            "error": f"Customer {customer_id} not found",
-            "error_code": "CUSTOMER_NOT_FOUND"
-        })
+        return _response(
+            404,
+            {
+                "success": False,
+                "error": f"Customer {customer_id} not found",
+                "error_code": "CUSTOMER_NOT_FOUND",
+            },
+        )
 
     return _response(200, customer)
 
@@ -80,7 +87,4 @@ def list_customers(event: Dict[str, Any]):
             continue
         customers_list.append(customer)
 
-    return _response(200, {
-        "customers": customers_list,
-        "count": len(customers_list)
-    })
+    return _response(200, {"customers": customers_list, "count": len(customers_list)})

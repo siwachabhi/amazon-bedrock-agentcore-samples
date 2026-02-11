@@ -17,6 +17,7 @@ def get_streamable_http_mcp_client(user_token: Optional[str] = None) -> MCPClien
     if os.getenv("LOCAL_DEV") == "1":
         from contextlib import nullcontext
         from types import SimpleNamespace
+
         return nullcontext(SimpleNamespace(list_tools_sync=lambda: []))
 
     if not gateway_url:
@@ -25,4 +26,8 @@ def get_streamable_http_mcp_client(user_token: Optional[str] = None) -> MCPClien
     if not user_token:
         raise RuntimeError("User token is required for Gateway access")
 
-    return MCPClient(lambda: streamablehttp_client(gateway_url, headers={"Authorization": f"Bearer {user_token}"}))
+    return MCPClient(
+        lambda: streamablehttp_client(
+            gateway_url, headers={"Authorization": f"Bearer {user_token}"}
+        )
+    )

@@ -5,7 +5,7 @@ from typing import Any, Dict
 # Mock Data Stores
 CUSTOMERS = {
     "CUST-001": {"customer_id": "CUST-001", "name": "John Doe"},
-    "CUST-002": {"customer_id": "CUST-002", "name": "Jane Smith"}
+    "CUST-002": {"customer_id": "CUST-002", "name": "Jane Smith"},
 }
 
 ORDERS = {
@@ -17,7 +17,7 @@ ORDERS = {
         "items": [{"name": "Wireless Headphones", "quantity": 1, "price": 79.99}],
         "total": 79.99,
         "order_date": "2025-01-15",
-        "delivery_date": "2025-01-20"
+        "delivery_date": "2025-01-20",
     },
     "ORD-12300": {
         "order_id": "ORD-12300",
@@ -26,7 +26,7 @@ ORDERS = {
         "items": [{"name": "Running Shoes", "quantity": 1, "price": 249.00}],
         "total": 249.00,
         "order_date": "2025-01-02",
-        "delivery_date": "2025-01-08"
+        "delivery_date": "2025-01-08",
     },
     "ORD-12400": {
         "order_id": "ORD-12400",
@@ -35,7 +35,7 @@ ORDERS = {
         "items": [{"name": "USB-C Charging Cable", "quantity": 2, "price": 12.99}],
         "total": 25.98,
         "order_date": "2025-01-20",
-        "delivery_date": "2025-01-23"
+        "delivery_date": "2025-01-23",
     },
     "ORD-12410": {
         "order_id": "ORD-12410",
@@ -44,7 +44,7 @@ ORDERS = {
         "items": [{"name": "Mechanical Keyboard", "quantity": 1, "price": 149.99}],
         "total": 149.99,
         "order_date": "2025-01-25",
-        "delivery_date": "2025-01-29"
+        "delivery_date": "2025-01-29",
     },
     "ORD-12420": {
         "order_id": "ORD-12420",
@@ -53,7 +53,7 @@ ORDERS = {
         "items": [{"name": "Phone Case", "quantity": 1, "price": 29.99}],
         "total": 29.99,
         "order_date": "2025-02-01",
-        "delivery_date": "2025-02-04"
+        "delivery_date": "2025-02-04",
     },
     "ORD-12430": {
         "order_id": "ORD-12430",
@@ -62,7 +62,7 @@ ORDERS = {
         "items": [{"name": "4K Monitor", "quantity": 1, "price": 399.00}],
         "total": 399.00,
         "order_date": "2025-02-05",
-        "delivery_date": "2025-02-10"
+        "delivery_date": "2025-02-10",
     },
     # --- CUST-002 (Jane Smith) ---
     "ORD-99000": {
@@ -72,7 +72,7 @@ ORDERS = {
         "items": [{"name": "Premium Laptop", "quantity": 1, "price": 1299.00}],
         "total": 1299.00,
         "order_date": "2025-01-10",
-        "delivery_date": "2025-01-15"
+        "delivery_date": "2025-01-15",
     },
     "ORD-99010": {
         "order_id": "ORD-99010",
@@ -81,7 +81,7 @@ ORDERS = {
         "items": [{"name": "Yoga Mat", "quantity": 1, "price": 45.00}],
         "total": 45.00,
         "order_date": "2025-01-18",
-        "delivery_date": "2025-01-21"
+        "delivery_date": "2025-01-21",
     },
     "ORD-99020": {
         "order_id": "ORD-99020",
@@ -90,7 +90,7 @@ ORDERS = {
         "items": [{"name": "Bluetooth Speaker", "quantity": 1, "price": 89.99}],
         "total": 89.99,
         "order_date": "2025-01-22",
-        "delivery_date": "2025-01-26"
+        "delivery_date": "2025-01-26",
     },
     "ORD-99030": {
         "order_id": "ORD-99030",
@@ -99,7 +99,7 @@ ORDERS = {
         "items": [{"name": "Standing Desk", "quantity": 1, "price": 549.00}],
         "total": 549.00,
         "order_date": "2025-01-28",
-        "delivery_date": "2025-02-03"
+        "delivery_date": "2025-02-03",
     },
     "ORD-99040": {
         "order_id": "ORD-99040",
@@ -108,7 +108,7 @@ ORDERS = {
         "items": [{"name": "Notebook Set", "quantity": 3, "price": 8.99}],
         "total": 26.97,
         "order_date": "2025-02-02",
-        "delivery_date": "2025-02-05"
+        "delivery_date": "2025-02-05",
     },
     "ORD-99050": {
         "order_id": "ORD-99050",
@@ -117,7 +117,7 @@ ORDERS = {
         "items": [{"name": "Wireless Mouse", "quantity": 1, "price": 59.99}],
         "total": 59.99,
         "order_date": "2025-02-06",
-        "delivery_date": "2025-02-09"
+        "delivery_date": "2025-02-09",
     },
 }
 
@@ -161,20 +161,26 @@ def get_order(event: Dict[str, Any]):
     order_id = event.get("order_id")
 
     if not order_id:
-        return _response(400, {
-            "success": False,
-            "error": "order_id is required",
-            "error_code": "MISSING_PARAMETER"
-        })
+        return _response(
+            400,
+            {
+                "success": False,
+                "error": "order_id is required",
+                "error_code": "MISSING_PARAMETER",
+            },
+        )
 
     order = ORDERS.get(order_id)
 
     if not order:
-        return _response(404, {
-            "success": False,
-            "error": f"Order {order_id} not found",
-            "error_code": "ORDER_NOT_FOUND"
-        })
+        return _response(
+            404,
+            {
+                "success": False,
+                "error": f"Order {order_id} not found",
+                "error_code": "ORDER_NOT_FOUND",
+            },
+        )
 
     return _response(200, order)
 
@@ -185,25 +191,31 @@ def list_orders(event: Dict[str, Any]):
     limit = event.get("limit", 10)
 
     if not customer_id:
-        return _response(400, {
-            "success": False,
-            "error": "customer_id is required",
-            "error_code": "MISSING_PARAMETER"
-        })
+        return _response(
+            400,
+            {
+                "success": False,
+                "error": "customer_id is required",
+                "error_code": "MISSING_PARAMETER",
+            },
+        )
 
     if customer_id not in CUSTOMERS:
-        return _response(404, {
-            "success": False,
-            "error": f"Customer {customer_id} not found",
-            "error_code": "CUSTOMER_NOT_FOUND"
-        })
+        return _response(
+            404,
+            {
+                "success": False,
+                "error": f"Customer {customer_id} not found",
+                "error_code": "CUSTOMER_NOT_FOUND",
+            },
+        )
 
     customer_orders = [
         {
             "order_id": o["order_id"],
             "total": o["total"],
             "status": o["status"],
-            "order_date": o["order_date"]
+            "order_date": o["order_date"],
         }
         for o in ORDERS.values()
         if o["customer_id"] == customer_id
@@ -212,10 +224,7 @@ def list_orders(event: Dict[str, Any]):
     customer_orders.sort(key=lambda x: x["order_date"], reverse=True)
     customer_orders = customer_orders[:limit]
 
-    return _response(200, {
-        "customer_id": customer_id,
-        "orders": customer_orders
-    })
+    return _response(200, {"customer_id": customer_id, "orders": customer_orders})
 
 
 def process_refund(event: Dict[str, Any]):
@@ -225,47 +234,65 @@ def process_refund(event: Dict[str, Any]):
     reason = event.get("reason")
 
     if not order_id:
-        return _response(400, {
-            "success": False,
-            "error": "order_id is required",
-            "error_code": "MISSING_PARAMETER"
-        })
+        return _response(
+            400,
+            {
+                "success": False,
+                "error": "order_id is required",
+                "error_code": "MISSING_PARAMETER",
+            },
+        )
 
     if amount is None:
-        return _response(400, {
-            "success": False,
-            "error": "amount is required",
-            "error_code": "MISSING_PARAMETER"
-        })
+        return _response(
+            400,
+            {
+                "success": False,
+                "error": "amount is required",
+                "error_code": "MISSING_PARAMETER",
+            },
+        )
 
     if not reason:
-        return _response(400, {
-            "success": False,
-            "error": "reason is required",
-            "error_code": "MISSING_PARAMETER"
-        })
+        return _response(
+            400,
+            {
+                "success": False,
+                "error": "reason is required",
+                "error_code": "MISSING_PARAMETER",
+            },
+        )
 
     order = ORDERS.get(order_id)
     if not order:
-        return _response(404, {
-            "success": False,
-            "error": f"Order {order_id} not found",
-            "error_code": "ORDER_NOT_FOUND"
-        })
+        return _response(
+            404,
+            {
+                "success": False,
+                "error": f"Order {order_id} not found",
+                "error_code": "ORDER_NOT_FOUND",
+            },
+        )
 
     if amount <= 0:
-        return _response(400, {
-            "success": False,
-            "error": "Refund amount must be positive",
-            "error_code": "INVALID_AMOUNT"
-        })
+        return _response(
+            400,
+            {
+                "success": False,
+                "error": "Refund amount must be positive",
+                "error_code": "INVALID_AMOUNT",
+            },
+        )
 
     if amount > order["total"]:
-        return _response(400, {
-            "success": False,
-            "error": f"Refund amount ${amount} exceeds order total ${order['total']}",
-            "error_code": "AMOUNT_EXCEEDS_ORDER"
-        })
+        return _response(
+            400,
+            {
+                "success": False,
+                "error": f"Refund amount ${amount} exceeds order total ${order['total']}",
+                "error_code": "AMOUNT_EXCEEDS_ORDER",
+            },
+        )
 
     refund_id = f"REF-{uuid.uuid4().hex[:5].upper()}"
 
@@ -274,13 +301,16 @@ def process_refund(event: Dict[str, Any]):
         "order_id": order_id,
         "amount": amount,
         "reason": reason,
-        "status": "processed"
+        "status": "processed",
     }
 
     REFUNDS[refund_id] = refund_record
 
-    return _response(200, {
-        "success": True,
-        **refund_record,
-        "message": f"Refund of ${amount:.2f} processed. Customer will receive funds in 3-5 business days."
-    })
+    return _response(
+        200,
+        {
+            "success": True,
+            **refund_record,
+            "message": f"Refund of ${amount:.2f} processed. Customer will receive funds in 3-5 business days.",
+        },
+    )

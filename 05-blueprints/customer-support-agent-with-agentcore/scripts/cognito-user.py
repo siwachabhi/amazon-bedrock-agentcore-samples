@@ -65,7 +65,11 @@ def _load_config():
         outputs = json.load(f)
 
     stack = outputs.get(_CDK_STACK_KEY, {})
-    missing = [k for k in ("UserPoolId", "ClientId", "CognitoDomain", "Region") if k not in stack]
+    missing = [
+        k
+        for k in ("UserPoolId", "ClientId", "CognitoDomain", "Region")
+        if k not in stack
+    ]
     if missing:
         print(
             f"Error: cdk-outputs.json is missing keys: {', '.join(missing)}\n"
@@ -74,7 +78,12 @@ def _load_config():
         )
         sys.exit(1)
 
-    return stack["UserPoolId"], stack["ClientId"], stack["CognitoDomain"], stack["Region"]
+    return (
+        stack["UserPoolId"],
+        stack["ClientId"],
+        stack["CognitoDomain"],
+        stack["Region"],
+    )
 
 
 USER_POOL_ID, CLIENT_ID, COGNITO_DOMAIN, REGION = _load_config()
@@ -83,10 +92,14 @@ USER_POOL_ID, CLIENT_ID, COGNITO_DOMAIN, REGION = _load_config()
 # User creation
 # ---------------------------------------------------------------------------
 
+
 def create_user(email, group=DEFAULT_GROUP, password=None):
     """Create a Cognito user, set their password, and add to a group."""
     if boto3 is None:
-        print("Error: boto3 is required for --create. Install it: uv pip install boto3", file=sys.stderr)
+        print(
+            "Error: boto3 is required for --create. Install it: uv pip install boto3",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     client = boto3.client("cognito-idp", region_name=REGION)
@@ -135,6 +148,7 @@ def create_user(email, group=DEFAULT_GROUP, password=None):
 # OAuth login (PKCE flow)
 # ---------------------------------------------------------------------------
 
+
 def copy_to_clipboard(text):
     """Copy text to clipboard (macOS/Linux)."""
     try:
@@ -142,7 +156,9 @@ def copy_to_clipboard(text):
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
         try:
-            subprocess.run(["xclip", "-selection", "clipboard"], input=text.encode(), check=True)
+            subprocess.run(
+                ["xclip", "-selection", "clipboard"], input=text.encode(), check=True
+            )
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
             return False
@@ -174,16 +190,20 @@ def build_auth_url(code_challenge, username=None):
 
 def exchange_code_for_tokens(code, code_verifier):
     """Exchange authorization code for tokens."""
-    body = urllib.parse.urlencode({
-        "grant_type": "authorization_code",
-        "client_id": CLIENT_ID,
-        "code": code,
-        "redirect_uri": REDIRECT_URI,
-        "code_verifier": code_verifier,
-    })
+    body = urllib.parse.urlencode(
+        {
+            "grant_type": "authorization_code",
+            "client_id": CLIENT_ID,
+            "code": code,
+            "redirect_uri": REDIRECT_URI,
+            "code_verifier": code_verifier,
+        }
+    )
     conn = HTTPSConnection(COGNITO_DOMAIN)
     conn.request(
-        "POST", "/oauth2/token", body,
+        "POST",
+        "/oauth2/token",
+        body,
         {"Content-Type": "application/x-www-form-urlencoded"},
     )
     response = conn.getresponse()
@@ -240,16 +260,20 @@ class CallbackHandler(http.server.BaseHTTPRequestHandler):
                     </body></html>
                 """)
             elif "error" in params:
-                CallbackHandler.error = params.get("error_description", params["error"])[0]
+                CallbackHandler.error = params.get(
+                    "error_description", params["error"]
+                )[0]
                 self.send_response(400)
                 self.send_header("Content-Type", "text/html")
                 self.end_headers()
-                self.wfile.write(f"""
+                self.wfile.write(
+                    f"""
                     <html><body style="font-family: sans-serif; text-align: center; padding: 50px;">
                     <h1>Authorization Failed</h1>
                     <p>{CallbackHandler.error}</p>
                     </body></html>
-                """.encode())
+                """.encode()
+                )
         else:
             self.send_response(404)
             self.end_headers()
@@ -307,7 +331,10 @@ def do_login(export_mode=False):
     tokens = exchange_code_for_tokens(code, code_verifier)
 
     if "error" in tokens:
-        print(f"Token error: {tokens.get('error_description', tokens['error'])}", file=sys.stderr)
+        print(
+            f"Token error: {tokens.get('error_description', tokens['error'])}",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     access_token = tokens.get("access_token", "")
@@ -315,7 +342,10 @@ def do_login(export_mode=False):
     if export_mode:
         # Only the export line goes to stdout (for eval); status goes to stderr
         print(f'export BEDROCK_AGENTCORE_BEARER_TOKEN="{access_token}"')
-        print("Login successful. BEDROCK_AGENTCORE_BEARER_TOKEN is now set.", file=sys.stderr)
+        print(
+            "Login successful. BEDROCK_AGENTCORE_BEARER_TOKEN is now set.",
+            file=sys.stderr,
+        )
     else:
         id_token = tokens.get("id_token", "")
         access_claims = decode_jwt_payload(access_token)
@@ -337,21 +367,33 @@ def do_login(export_mode=False):
 # CLI
 # ---------------------------------------------------------------------------
 
+
 def main():
     parser = argparse.ArgumentParser(
         description="Create Cognito users and get OAuth tokens for the AgentCore demo.",
     )
-    parser.add_argument("--create", action="store_true",
-                        help="Create a user in Cognito (prompts for email and password)")
-    parser.add_argument("--group", default=DEFAULT_GROUP,
-                        choices=["standard", "premium", "vip"],
-                        help="Cognito group to assign (default: standard)")
-    parser.add_argument("--login", action="store_true",
-                        help="Login via browser and get a bearer token")
-    parser.add_argument("--export", action="store_true",
-                        help="With --login, output only the export line (for eval)")
-    parser.add_argument("--logout", action="store_true",
-                        help="Logout current Cognito session")
+    parser.add_argument(
+        "--create",
+        action="store_true",
+        help="Create a user in Cognito (prompts for email and password)",
+    )
+    parser.add_argument(
+        "--group",
+        default=DEFAULT_GROUP,
+        choices=["standard", "premium", "vip"],
+        help="Cognito group to assign (default: standard)",
+    )
+    parser.add_argument(
+        "--login", action="store_true", help="Login via browser and get a bearer token"
+    )
+    parser.add_argument(
+        "--export",
+        action="store_true",
+        help="With --login, output only the export line (for eval)",
+    )
+    parser.add_argument(
+        "--logout", action="store_true", help="Logout current Cognito session"
+    )
     args = parser.parse_args()
 
     if not any([args.create, args.login, args.logout]):
@@ -367,7 +409,9 @@ def main():
         if not email:
             print("Error: email is required", file=sys.stderr)
             sys.exit(1)
-        password = getpass.getpass("Password (must include uppercase, lowercase, number, and symbol): ")
+        password = getpass.getpass(
+            "Password (must include uppercase, lowercase, number, and symbol): "
+        )
         if not password:
             print("Error: password is required", file=sys.stderr)
             sys.exit(1)

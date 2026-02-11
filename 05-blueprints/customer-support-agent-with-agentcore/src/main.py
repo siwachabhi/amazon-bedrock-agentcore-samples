@@ -8,8 +8,13 @@ os.environ["BYPASS_TOOL_CONSENT"] = "true"
 from strands import Agent
 from strands_tools import shell, file_read, file_write, editor
 from bedrock_agentcore import BedrockAgentCoreApp
-from bedrock_agentcore.memory.integrations.strands.config import AgentCoreMemoryConfig, RetrievalConfig
-from bedrock_agentcore.memory.integrations.strands.session_manager import AgentCoreMemorySessionManager
+from bedrock_agentcore.memory.integrations.strands.config import (
+    AgentCoreMemoryConfig,
+    RetrievalConfig,
+)
+from bedrock_agentcore.memory.integrations.strands.session_manager import (
+    AgentCoreMemorySessionManager,
+)
 from .mcp_client.client import get_streamable_http_mcp_client
 from .model.load import load_model
 
@@ -19,8 +24,8 @@ REGION = os.getenv("AWS_REGION")
 
 def _get_bearer_token(context) -> Optional[str]:
     """Extract Bearer token from the Authorization header."""
-    auth = (getattr(context, 'request_headers', None) or {}).get('Authorization', '')
-    return auth[7:] if auth.startswith('Bearer ') else None
+    auth = (getattr(context, "request_headers", None) or {}).get("Authorization", "")
+    return auth[7:] if auth.startswith("Bearer ") else None
 
 
 def _decode_jwt(token: str) -> Dict[str, Any]:
@@ -35,16 +40,17 @@ def _decode_jwt(token: str) -> Dict[str, Any]:
 app = BedrockAgentCoreApp()
 log = app.logger
 
+
 @app.entrypoint
 async def invoke(payload, context):
-    session_id = getattr(context, 'session_id', 'default-session')
+    session_id = getattr(context, "session_id", "default-session")
 
     # Extract user identity from JWT claims
     user_token = _get_bearer_token(context)
     claims = _decode_jwt(user_token) if user_token else {}
-    email = claims.get('email') or claims.get('username', '')
-    groups = claims.get('cognito:groups', [])
-    actor_id = claims.get('sub') or email or payload.get("user_id") or 'default-user'
+    email = claims.get("email") or claims.get("username", "")
+    groups = claims.get("cognito:groups", [])
+    actor_id = claims.get("sub") or email or payload.get("user_id") or "default-user"
     log.info(f"User: {actor_id}, has_token: {user_token is not None}")
 
     # Configure memory if available
@@ -57,15 +63,23 @@ async def invoke(payload, context):
                 actor_id=actor_id,
                 retrieval_config={
                     "/facts/{actorId}/": RetrievalConfig(top_k=10, relevance_score=0.4),
-                    "/preferences/{actorId}/": RetrievalConfig(top_k=5, relevance_score=0.5),
-                    "/summaries/{actorId}/{sessionId}/": RetrievalConfig(top_k=5, relevance_score=0.4),
-                    "/episodes/{actorId}/{sessionId}/": RetrievalConfig(top_k=5, relevance_score=0.4),
-                }
+                    "/preferences/{actorId}/": RetrievalConfig(
+                        top_k=5, relevance_score=0.5
+                    ),
+                    "/summaries/{actorId}/{sessionId}/": RetrievalConfig(
+                        top_k=5, relevance_score=0.4
+                    ),
+                    "/episodes/{actorId}/{sessionId}/": RetrievalConfig(
+                        top_k=5, relevance_score=0.4
+                    ),
+                },
             ),
-            REGION
+            REGION,
         )
     else:
-        log.warning("MEMORY_ID is not set. Skipping memory session manager initialization.")
+        log.warning(
+            "MEMORY_ID is not set. Skipping memory session manager initialization."
+        )
 
     # High-agency tools from strands_tools
     high_agency_tools = [shell, file_read, file_write, editor]
@@ -105,7 +119,7 @@ async def invoke(payload, context):
                 "- Build on previous session summaries to maintain context across conversations\n"
                 "- Acknowledge returning customers and their history when appropriate"
             ),
-            tools=high_agency_tools + tools
+            tools=high_agency_tools + tools,
         )
 
         # Execute and format response
@@ -122,17 +136,20 @@ def format_response(result) -> str:
 
     # Extract executed code from metrics
     try:
-        tool_metrics = result.metrics.tool_metrics.get('code_interpreter')
-        if tool_metrics and hasattr(tool_metrics, 'tool'):
-            action = tool_metrics.tool['input']['code_interpreter_input']['action']
-            if 'code' in action:
-                parts.append(f"## Executed Code:\n```{action.get('language', 'python')}\n{action['code']}\n```\n---\n")
+        tool_metrics = result.metrics.tool_metrics.get("code_interpreter")
+        if tool_metrics and hasattr(tool_metrics, "tool"):
+            action = tool_metrics.tool["input"]["code_interpreter_input"]["action"]
+            if "code" in action:
+                parts.append(
+                    f"## Executed Code:\n```{action.get('language', 'python')}\n{action['code']}\n```\n---\n"
+                )
     except (AttributeError, KeyError):
         pass  # No code to extract
 
     # Add LLM response
     parts.append(f"## 📊 Result:\n{str(result)}")
     return "\n".join(parts)
+
 
 if __name__ == "__main__":
     app.run()

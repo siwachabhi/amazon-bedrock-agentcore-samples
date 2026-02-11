@@ -5,7 +5,7 @@ from typing import Optional, Dict, Any
 # Bypass tool consent prompts for high-agency tools
 os.environ["BYPASS_TOOL_CONSENT"] = "true"
 
-from strands import Agent, tool
+from strands import Agent
 from strands_tools import shell, file_read, file_write, editor
 from bedrock_agentcore import BedrockAgentCoreApp
 from bedrock_agentcore.memory.integrations.strands.config import AgentCoreMemoryConfig, RetrievalConfig

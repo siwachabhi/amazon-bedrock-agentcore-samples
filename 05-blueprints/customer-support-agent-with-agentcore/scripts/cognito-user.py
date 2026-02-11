@@ -127,8 +127,8 @@ def create_user(email, group=DEFAULT_GROUP, password=None):
     except Exception as e:
         print(f"Warning: could not add to group '{group}': {e}", file=sys.stderr)
 
-    print(f"\nUser ready. Login with:")
-    print(f"  eval $(python scripts/cognito-user.py --login --export)")
+    print("\nUser ready. Login with:")
+    print("  eval $(python scripts/cognito-user.py --login --export)")
 
 
 # ---------------------------------------------------------------------------
@@ -328,9 +328,9 @@ def do_login(export_mode=False):
         print(f"  groups: {access_claims.get('cognito:groups', 'N/A')}")
         print(f"  scope:  {access_claims.get('scope', 'N/A')}")
         print(f"  exp:    {access_claims.get('exp', 'N/A')}")
-        print(f"\n--- Usage ---")
+        print("\n--- Usage ---")
         print(f'export BEDROCK_AGENTCORE_BEARER_TOKEN="{access_token}"')
-        print(f'\nagentcore invoke \'{{\"prompt\": \"Who am I?\"}}\'\n')
+        print('\nagentcore invoke \'{"prompt": "Who am I?"}\'\n')
 
 
 # ---------------------------------------------------------------------------
